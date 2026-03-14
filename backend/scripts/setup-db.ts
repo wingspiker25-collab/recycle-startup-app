@@ -1,7 +1,7 @@
 /**
  * Runs schema.sql to create all tables in the database.
  * Requires DATABASE_URL to point to your app database, e.g.:
- * DATABASE_URL=postgres://user:password@localhost:5432/recycle_app
+ * DATABASE_URL=postgresql://user:password@host:5432/database
  */
 import "dotenv/config";
 import { Client } from "pg";
@@ -12,7 +12,7 @@ async function main() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     console.error("Set DATABASE_URL in .env");
-    console.error("Example: postgres://postgres:password@localhost:5432/recycle_app");
+    console.error("Example: postgresql://user:password@host:5432/database");
     process.exit(1);
   }
 

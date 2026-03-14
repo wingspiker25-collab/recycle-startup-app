@@ -28,7 +28,7 @@ router.post("/", async (req: AuthRequest, res: Response): Promise<void> => {
       [id, emailOrPhone.trim(), inviteToken, role, req.user!.userId]
     );
 
-    const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    const baseUrl = process.env.FRONTEND_URL || "https://recycle-startup-app.vercel.app";
     const inviteLink = `${baseUrl}/invite/${inviteToken}`;
 
     res.status(201).json({ inviteLink, inviteToken, id });

@@ -22,8 +22,8 @@ Edit `.env` and set your PostgreSQL credentials:
 
 Example:
 ```
-DATABASE_BASE_URL=postgres://postgres:yourpassword@localhost:5432/postgres
-DATABASE_URL=postgres://postgres:yourpassword@localhost:5432/recycle_app
+DATABASE_BASE_URL=postgresql://your_user:your_password@your_host:5432/your_db
+DATABASE_URL=postgresql://your_user:your_password@your_host:5432/your_db
 ```
 
 ## 2. Create the database

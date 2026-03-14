@@ -1,7 +1,7 @@
 /**
  * Creates the recycle_app database if it doesn't exist.
  * Connect to PostgreSQL default DB (postgres). Set DATABASE_BASE_URL in .env:
- * DATABASE_BASE_URL=postgres://user:password@localhost:5432/postgres
+ * DATABASE_BASE_URL=postgresql://user:password@host:5432/database
  */
 import "dotenv/config";
 import { Client } from "pg";
@@ -12,7 +12,7 @@ async function main() {
   const baseUrl = process.env.DATABASE_BASE_URL || process.env.DATABASE_URL;
   if (!baseUrl) {
     console.error("Set DATABASE_BASE_URL or DATABASE_URL in .env");
-    console.error("Example: postgres://postgres:password@localhost:5432/postgres");
+    console.error("Example: postgresql://user:password@host:5432/database");
     process.exit(1);
   }
 
