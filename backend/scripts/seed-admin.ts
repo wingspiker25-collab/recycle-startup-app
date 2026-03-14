@@ -17,7 +17,7 @@ async function main() {
   const client = new Client({ connectionString: databaseUrl });
   await client.connect();
 
-  const check = await client.query("SELECT id, username FROM users WHERE role = 'admin' LIMIT 1");
+  const check = await client.query("SELECT id, username, hashed_password FROM users WHERE role = 'admin' LIMIT 1");
   if (check.rows.length > 0) {
     const admin = check.rows[0];
     if (!admin.username) {
@@ -30,6 +30,15 @@ async function main() {
     } else {
       console.log("Admin user already exists with username:", admin.username);
     }
+    
+    // Always update the password to ensure it's correct
+    const hashed = await bcrypt.hash("vinoth2486@", 10);
+    await client.query(
+      "UPDATE users SET hashed_password = $1 WHERE id = $2",
+      [hashed, admin.id]
+    );
+    console.log("Updated admin password.");
+    
     await client.end();
     return;
   }
