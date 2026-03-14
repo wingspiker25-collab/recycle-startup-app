@@ -1,4 +1,8 @@
 build/
+node_modules/
+uploads/
+.env
+*.log
 .dart_tool/
 .packages
 pubspec.lock
