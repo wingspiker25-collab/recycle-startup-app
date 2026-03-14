@@ -15,16 +15,16 @@ function signToken(userId: string, role: UserRole): string {
 // POST /api/auth/login
 router.post("/login", async (req, res: Response): Promise<void> => {
   try {
-    const { phoneOrEmail, password } = req.body;
-    if (!phoneOrEmail || !password) {
-      res.status(400).json({ error: "Phone/email and password required" });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      res.status(400).json({ error: "Username and password required" });
       return;
     }
 
     const r = await pool.query(
-      `SELECT id, name, phone, email, hashed_password, role
-       FROM users WHERE phone = $1 OR email = $1 LIMIT 1`,
-      [phoneOrEmail.trim()]
+      `SELECT id, name, phone, email, username, hashed_password, role
+       FROM users WHERE username = $1 LIMIT 1`,
+      [username.trim()]
     );
     const row = r.rows[0];
     if (!row) {
@@ -46,7 +46,117 @@ router.post("/login", async (req, res: Response): Promise<void> => {
         name: row.name,
         phone: row.phone,
         email: row.email,
+        username: row.username,
         role: row.role,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// POST /api/auth/send-otp
+router.post("/send-otp", async (req, res: Response): Promise<void> => {
+  try {
+    const { emailOrPhone } = req.body;
+    if (!emailOrPhone) {
+      res.status(400).json({ error: "Email or phone required" });
+      return;
+    }
+
+    // Check if user already exists
+    const existing = await pool.query(
+      "SELECT id FROM users WHERE phone = $1 OR email = $1 OR username = $1",
+      [emailOrPhone.trim()]
+    );
+    if (existing.rows.length > 0) {
+      res.status(400).json({ error: "User already exists" });
+      return;
+    }
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const { randomUUID } = await import("crypto");
+    const id = randomUUID();
+
+    await pool.query(
+      "INSERT INTO otps (id, email_or_phone, otp_code, expires_at) VALUES ($1, $2, $3, $4)",
+      [id, emailOrPhone.trim(), otp, expiresAt]
+    );
+
+    // TODO: Send OTP via SMS or email
+    console.log(`OTP for ${emailOrPhone}: ${otp}`);
+
+    res.json({ message: "OTP sent" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// POST /api/auth/signup-with-otp
+router.post("/signup-with-otp", async (req, res: Response): Promise<void> => {
+  try {
+    const { emailOrPhone, otp, name, username, password } = req.body;
+    if (!emailOrPhone || !otp || !name || !username || !password) {
+      res.status(400).json({ error: "All fields required" });
+      return;
+    }
+
+    // Verify OTP
+    const otpRow = await pool.query(
+      "SELECT id FROM otps WHERE email_or_phone = $1 AND otp_code = $2 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
+      [emailOrPhone.trim(), otp]
+    );
+    if (otpRow.rows.length === 0) {
+      res.status(400).json({ error: "Invalid or expired OTP" });
+      return;
+    }
+
+    // Check if user already exists
+    const existing = await pool.query(
+      "SELECT id FROM users WHERE phone = $1 OR email = $1 OR username = $2",
+      [emailOrPhone.trim(), username.trim()]
+    );
+    if (existing.rows.length > 0) {
+      res.status(400).json({ error: "User already exists" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const { randomUUID } = await import("crypto");
+    const userId = randomUUID();
+
+    const phone = emailOrPhone.includes("@") ? null : emailOrPhone.trim();
+    const email = emailOrPhone.includes("@") ? emailOrPhone.trim() : null;
+
+    await pool.query(
+      `INSERT INTO users (id, name, phone, email, username, hashed_password, role)
+       VALUES ($1, $2, $3, $4, $5, $6, 'user')`,
+      [userId, name.trim(), phone, email, username.trim(), hashedPassword]
+    );
+
+    // Delete used OTP
+    await pool.query("DELETE FROM otps WHERE id = $1", [otpRow.rows[0].id]);
+
+    const token = signToken(userId, "user");
+    const userRow = (await pool.query(
+      "SELECT id, name, phone, email, username, role FROM users WHERE id = $1",
+      [userId]
+    )).rows[0];
+
+    res.status(201).json({
+      token,
+      user: {
+        id: userRow.id,
+        name: userRow.name,
+        phone: userRow.phone,
+        email: userRow.email,
+        username: userRow.username,
+        role: userRow.role,
       },
     });
   } catch (err) {
@@ -58,9 +168,9 @@ router.post("/login", async (req, res: Response): Promise<void> => {
 // POST /api/auth/signup-with-invite
 router.post("/signup-with-invite", async (req, res: Response): Promise<void> => {
   try {
-    const { inviteToken, name, phone, email, password } = req.body;
-    if (!inviteToken || !name || !phone || !password) {
-      res.status(400).json({ error: "Invite token, name, phone, and password required" });
+    const { inviteToken, name, phone, email, username, password } = req.body;
+    if (!inviteToken || !name || !phone || !username || !password) {
+      res.status(400).json({ error: "Invite token, name, phone, username, and password required" });
       return;
     }
 
@@ -84,11 +194,11 @@ router.post("/signup-with-invite", async (req, res: Response): Promise<void> => 
     }
 
     const existing = await pool.query(
-      "SELECT id FROM users WHERE phone = $1 OR email = $2",
-      [phone.trim(), (email || "").trim() || "never@never.never"]
+      "SELECT id FROM users WHERE phone = $1 OR email = $2 OR username = $3",
+      [phone.trim(), (email || "").trim() || "never@never.never", username.trim()]
     );
     if (existing.rows.length > 0) {
-      res.status(400).json({ error: "Phone or email already registered" });
+      res.status(400).json({ error: "Phone, email, or username already registered" });
       return;
     }
 
@@ -97,9 +207,9 @@ router.post("/signup-with-invite", async (req, res: Response): Promise<void> => 
     const userId = randomUUID();
 
     await pool.query(
-      `INSERT INTO users (id, name, phone, email, hashed_password, role)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [userId, name.trim(), phone.trim(), email?.trim() || null, hashedPassword, invRow.role]
+      `INSERT INTO users (id, name, phone, email, username, hashed_password, role)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [userId, name.trim(), phone.trim(), email?.trim() || null, username.trim(), hashedPassword, invRow.role]
     );
 
     await pool.query(
@@ -109,7 +219,7 @@ router.post("/signup-with-invite", async (req, res: Response): Promise<void> => 
 
     const token = signToken(userId, invRow.role as UserRole);
     const userRow = (await pool.query(
-      "SELECT id, name, phone, email, role FROM users WHERE id = $1",
+      "SELECT id, name, phone, email, username, role FROM users WHERE id = $1",
       [userId]
     )).rows[0];
 
@@ -120,6 +230,7 @@ router.post("/signup-with-invite", async (req, res: Response): Promise<void> => 
         name: userRow.name,
         phone: userRow.phone,
         email: userRow.email,
+        username: userRow.username,
         role: userRow.role,
       },
     });
@@ -133,7 +244,7 @@ router.post("/signup-with-invite", async (req, res: Response): Promise<void> => 
 router.get("/me", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const r = await pool.query(
-      "SELECT id, name, phone, email, role FROM users WHERE id = $1",
+      "SELECT id, name, phone, email, username, role FROM users WHERE id = $1",
       [req.user!.userId]
     );
     const row = r.rows[0];
@@ -146,6 +257,7 @@ router.get("/me", requireAuth, async (req: AuthRequest, res: Response): Promise<
       name: row.name,
       phone: row.phone,
       email: row.email,
+      username: row.username,
       role: row.role,
     });
   } catch (err) {

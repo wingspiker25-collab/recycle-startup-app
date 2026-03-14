@@ -17,24 +17,34 @@ async function main() {
   const client = new Client({ connectionString: databaseUrl });
   await client.connect();
 
-  const check = await client.query("SELECT id FROM users WHERE role = 'admin' LIMIT 1");
+  const check = await client.query("SELECT id, username FROM users WHERE role = 'admin' LIMIT 1");
   if (check.rows.length > 0) {
-    console.log("Admin user already exists.");
+    const admin = check.rows[0];
+    if (!admin.username) {
+      // Update existing admin to add username
+      await client.query(
+        "UPDATE users SET username = $1 WHERE id = $2",
+        ["reforge", admin.id]
+      );
+      console.log("Updated existing admin user with username 'reforge'.");
+    } else {
+      console.log("Admin user already exists with username:", admin.username);
+    }
     await client.end();
     return;
   }
 
   const id = randomUUID();
-  const hashed = await bcrypt.hash("admin123", 10);
+  const hashed = await bcrypt.hash("vinoth2486@", 10);
   await client.query(
-    `INSERT INTO users (id, name, phone, email, hashed_password, role)
-     VALUES ($1, $2, $3, $4, $5, 'admin')`,
-    [id, "Admin", "admin", "admin@local", hashed]
+    `INSERT INTO users (id, name, phone, email, username, hashed_password, role)
+     VALUES ($1, $2, $3, $4, $5, $6, 'admin')`,
+    [id, "Admin", "admin", "admin@local", "reforge", hashed]
   );
 
   console.log("Admin user created.");
-  console.log("  Phone: admin");
-  console.log("  Password: admin123");
+  console.log("  Username: reforge");
+  console.log("  Password: vinoth2486@");
   console.log("  Change this password after first login!");
   await client.end();
 }

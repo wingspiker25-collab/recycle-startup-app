@@ -4,11 +4,21 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT NOT NULL,
   phone TEXT NOT NULL UNIQUE,
   email TEXT UNIQUE,
+  username TEXT UNIQUE,
   address TEXT,
   hashed_password TEXT NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('user', 'admin', 'driver')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- OTPs
+CREATE TABLE IF NOT EXISTS otps (
+  id UUID PRIMARY KEY,
+  email_or_phone TEXT NOT NULL,
+  otp_code TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Invites
