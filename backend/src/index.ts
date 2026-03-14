@@ -35,11 +35,21 @@ app.use("/api/admin/pickups", adminPickupsRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/notifications", notificationsRoutes);
 
-const PORT = env.port;
+const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Backend API listening on port ${PORT}`);
+});
+
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Please use a different port or stop the process using it.`);
+    process.exit(1);
+  } else {
+    console.error('Server error:', err);
+    process.exit(1);
+  }
 });
 
 

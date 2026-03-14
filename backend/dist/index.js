@@ -8,7 +8,6 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const path_1 = __importDefault(require("path"));
-const env_1 = require("./config/env");
 const auth_1 = __importDefault(require("./routes/auth"));
 const invites_1 = __importDefault(require("./routes/invites"));
 const admin_invites_1 = __importDefault(require("./routes/admin-invites"));
@@ -35,8 +34,18 @@ app.use("/api/admin/scrap-rates", scrap_rates_1.adminScrapRatesRouter);
 app.use("/api/admin/pickups", admin_pickups_1.default);
 app.use("/api/admin/users", admin_users_1.default);
 app.use("/api/notifications", notifications_1.default);
-const PORT = env_1.env.port;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 4000;
+const server = app.listen(PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`Backend API listening on port ${PORT}`);
+});
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Please use a different port or stop the process using it.`);
+        process.exit(1);
+    }
+    else {
+        console.error('Server error:', err);
+        process.exit(1);
+    }
 });
