@@ -34,6 +34,12 @@ app.use("/api/admin/pickups", adminPickupsRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/notifications", notificationsRoutes);
 
+// Global error handler
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
 const PORT = process.env.PORT || 4000;
 
 const server = app.listen(PORT, () => {

@@ -34,6 +34,11 @@ app.use("/api/admin/scrap-rates", scrap_rates_1.adminScrapRatesRouter);
 app.use("/api/admin/pickups", admin_pickups_1.default);
 app.use("/api/admin/users", admin_users_1.default);
 app.use("/api/notifications", notifications_1.default);
+// Global error handler
+app.use((err, _req, res, _next) => {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+});
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, () => {
     // eslint-disable-next-line no-console
