@@ -5,6 +5,7 @@ export interface User {
   name: string;
   phone: string;
   email: string | null;
+  username: string;
   role: "user" | "admin" | "driver";
 }
 

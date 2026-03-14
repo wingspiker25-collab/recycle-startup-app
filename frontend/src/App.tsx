@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import InviteSignup from "./pages/InviteSignup";
 import Home from "./pages/Home";
 import NewPickup from "./pages/NewPickup";
@@ -31,6 +32,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
       <Route path="/invite/:token" element={<InviteSignup />} />
       <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path="/new-pickup" element={<ProtectedRoute><NewPickup /></ProtectedRoute>} />

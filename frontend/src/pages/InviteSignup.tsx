@@ -11,6 +11,7 @@ export default function InviteSignup() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
   const { login } = useAuth();
@@ -44,11 +45,11 @@ export default function InviteSignup() {
     if (!token || !invite) return;
     setError("");
     setSubmitLoading(true);
-    const { data, error: err } = await api<{ token: string; user: { id: string; name: string; phone: string; email: string | null; role: string } }>(
+    const { data, error: err } = await api<{ token: string; user: { id: string; name: string; phone: string; email: string | null; username: string; role: string } }>(
       "/auth/signup-with-invite",
       {
         method: "POST",
-        body: JSON.stringify({ inviteToken: token, name, phone, email: email || undefined, password }),
+        body: JSON.stringify({ inviteToken: token, name, phone, email: email || undefined, username, password }),
       }
     );
     setSubmitLoading(false);
@@ -104,6 +105,9 @@ export default function InviteSignup() {
           </div>
           <div className="form-group">
           <input type="email" placeholder="Email (optional)" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div className="form-group">
+          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
           </div>
           <div className="form-group">
           <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />

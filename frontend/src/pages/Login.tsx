@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 
 export default function Login() {
-  const [phoneOrEmail, setPhoneOrEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,11 +15,11 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { data, error: err } = await api<{ token: string; user: { id: string; name: string; phone: string; email: string | null; role: string } }>(
+    const { data, error: err } = await api<{ token: string; user: { id: string; name: string; phone: string; email: string | null; username: string; role: string } }>(
       "/auth/login",
       {
         method: "POST",
-        body: JSON.stringify({ phoneOrEmail: phoneOrEmail.trim(), password }),
+        body: JSON.stringify({ username: username.trim(), password }),
       }
     );
     setLoading(false);
@@ -44,9 +44,9 @@ export default function Login() {
           <div className="form-group">
             <input
               type="text"
-              placeholder="Phone or Email"
-              value={phoneOrEmail}
-              onChange={(e) => setPhoneOrEmail(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
             />
           </div>
@@ -64,7 +64,9 @@ export default function Login() {
             {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
-        <p className="hint">Access is invite-only. Use the link shared with you to sign up.</p>
+        <p style={{ marginTop: "1rem", textAlign: "center" }}>
+          Don't have an account? <a href="/signup" className="link">Sign up</a>
+        </p>
       </div>
     </div>
   );
