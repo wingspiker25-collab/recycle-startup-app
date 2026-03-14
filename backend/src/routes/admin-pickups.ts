@@ -1,4 +1,5 @@
 import { Router, Response } from "express";
+import { randomUUID } from "crypto";
 import { pool } from "../db/pool";
 import { requireAuth, requireAdmin, AuthRequest } from "../middleware/auth";
 
@@ -54,7 +55,7 @@ router.get("/:id", async (req: AuthRequest, res: Response): Promise<void> => {
        WHERE p.id = $1`,
       [req.params.id]
     );
-    const row = r.rows[0];
+    const row: any = r.rows[0];
     if (!row) {
       res.status(404).json({ error: "Pickup not found" });
       return;
@@ -124,9 +125,8 @@ router.post("/:id/payments", async (req: AuthRequest, res: Response): Promise<vo
       res.status(400).json({ error: "amount (number) and method required" });
       return;
     }
-    const { randomUUID } = await import("crypto");
     const r = await pool.query("SELECT user_id FROM pickups WHERE id = $1", [req.params.id]);
-    const row = r.rows[0];
+    const row: any = r.rows[0];
     if (!row) {
       res.status(404).json({ error: "Pickup not found" });
       return;

@@ -55,7 +55,7 @@ router.post("/", async (req, res) => {
         const inviteToken = randomUUID().replace(/-/g, "").slice(0, 24);
         await pool_1.pool.query(`INSERT INTO invites (id, email_or_phone, invite_token, role, created_by_admin_id)
        VALUES ($1, $2, $3, $4, $5)`, [id, emailOrPhone.trim(), inviteToken, role, req.user.userId]);
-        const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const baseUrl = process.env.FRONTEND_URL || "https://recycle-startup-app.vercel.app";
         const inviteLink = `${baseUrl}/invite/${inviteToken}`;
         res.status(201).json({ inviteLink, inviteToken, id });
     }
