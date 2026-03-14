@@ -11,7 +11,11 @@ export interface JwtPayload {
 }
 
 export interface AuthRequest extends Request {
-  user?: JwtPayload;
+  user?: { userId: string; role: string };
+  params: any;
+  query: any;
+  body: any;
+  headers: any;
 }
 
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction): void {
