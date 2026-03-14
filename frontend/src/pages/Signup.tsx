@@ -58,7 +58,7 @@ export default function Signup() {
     return (
       <div className="auth-page">
         <div className="auth-card">
-          <h1 style={{ fontSize: "1.5rem", marginBottom: 4 }}>♻ Recycle Pickup</h1>
+          <h1 style={{ fontSize: "1.5rem", marginBottom: 4 }}>♻ Reforge Pickup</h1>
           <p className="section-hint" style={{ marginBottom: "1.5rem" }}>Create your account</p>
           <form onSubmit={handleSendOtp}>
             <div className="form-group">
@@ -86,7 +86,7 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1 style={{ fontSize: "1.5rem", marginBottom: 4 }}>♻ Recycle Pickup</h1>
+        <h1 style={{ fontSize: "1.5rem", marginBottom: 4 }}>♻ Reforge Pickup</h1>
         <p className="section-hint" style={{ marginBottom: "1.5rem" }}>Enter OTP and details</p>
         <form onSubmit={handleVerifyOtp}>
           <div className="form-group">

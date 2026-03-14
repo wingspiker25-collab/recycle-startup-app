@@ -38,7 +38,7 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1 style={{ fontSize: "1.5rem", marginBottom: 4 }}>♻ Recycle Pickup</h1>
+        <h1 style={{ fontSize: "1.5rem", marginBottom: 4 }}>♻ Reforge Pickup</h1>
         <p className="section-hint" style={{ marginBottom: "1.5rem" }}>Log in to your account</p>
         <form onSubmit={handleSubmit}>
           <div className="form-group">

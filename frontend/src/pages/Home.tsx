@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <div className="page">
       <header className="header">
-        <h1 className="logo">♻ Recycle Pickup</h1>
+        <h1 className="logo">♻ Reforge Pickup</h1>
         <nav className="nav">
           {user?.role === "admin" && (
             <Link to="/admin" className="nav-link admin-link">Admin</Link>
