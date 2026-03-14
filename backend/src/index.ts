@@ -3,7 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
-import { env } from "./config/env";
 import authRoutes from "./routes/auth";
 import invitesRoutes from "./routes/invites";
 import adminInvitesRoutes from "./routes/admin-invites";
