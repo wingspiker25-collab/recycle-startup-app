@@ -3,6 +3,22 @@ import { randomUUID } from "crypto";
 import { pool } from "../db/pool";
 import { requireAuth, requireAdmin, AuthRequest } from "../middleware/auth";
 
+interface PickupRow {
+  id: string;
+  user_id: string;
+  address_text: string;
+  scheduled_at: string | null;
+  pickup_status: string;
+  total_weight_kg: number;
+  estimated_amount: number;
+  final_amount_paid: number | null;
+  driver_id: string | null;
+  created_at: string;
+  user_name: string;
+  phone: string;
+  driver_name: string | null;
+}
+
 const router = Router();
 router.use(requireAuth, requireAdmin);
 
@@ -55,7 +71,7 @@ router.get("/:id", async (req: AuthRequest, res: Response): Promise<void> => {
        WHERE p.id = $1`,
       [req.params.id]
     );
-    const row: any = r.rows[0];
+    const row: PickupRow = r.rows[0];
     if (!row) {
       res.status(404).json({ error: "Pickup not found" });
       return;
@@ -126,7 +142,7 @@ router.post("/:id/payments", async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
     const r = await pool.query("SELECT user_id FROM pickups WHERE id = $1", [req.params.id]);
-    const row: any = r.rows[0];
+    const row: { user_id: string } = r.rows[0];
     if (!row) {
       res.status(404).json({ error: "Pickup not found" });
       return;
