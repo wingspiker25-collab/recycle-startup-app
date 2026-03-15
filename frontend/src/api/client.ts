@@ -1,5 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://recycle-startup-app.onrender.com";
-
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "https://recycle-startup-app.onrender.com") + "/api";
 export async function api<T>(
   path: string,
   opts: RequestInit & { skipJson?: boolean } = {}
