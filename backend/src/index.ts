@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-app.get("/health", (_req, res) => {
+app.get("/health", (_req: any, res: any) => {
   res.json({ status: "ok" });
 });
 
@@ -40,21 +40,18 @@ app.use((err: any, _req: any, res: any, _next: any) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = parseInt(process.env.PORT || "10000", 10);
 
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Backend API listening on port ${PORT}`);
 });
 
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Please use a different port or stop the process using it.`);
+server.on("error", (err: any) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use.`);
     process.exit(1);
   } else {
-    console.error('Server error:', err);
+    console.error("Server error:", err);
     process.exit(1);
   }
 });
-
-
